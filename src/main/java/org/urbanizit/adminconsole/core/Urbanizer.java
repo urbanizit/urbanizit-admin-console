@@ -1,54 +1,84 @@
 package org.urbanizit.adminconsole.core;
 
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.nio.file.FileVisitResult;
-import java.nio.file.Files;
-import java.nio.file.LinkOption;
-import java.nio.file.Path;
-import java.nio.file.SimpleFileVisitor;
-import java.nio.file.attribute.BasicFileAttributes;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import org.neo4j.graphdb.GraphDatabaseService;
+import org.neo4j.graphdb.Direction;
 import org.neo4j.graphdb.Node;
+import org.neo4j.graphdb.NotFoundException;
+import org.neo4j.graphdb.Transaction;
 import org.neo4j.graphdb.index.Index;
 import org.neo4j.graphdb.index.IndexManager;
+import org.neo4j.tooling.GlobalGraphOperations;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.urbanizit.adminconsole.Configuration;
 import org.urbanizit.adminconsole.pojo.Component;
 import org.urbanizit.adminconsole.pojo.Relationship;
 import org.yaml.snakeyaml.Yaml;
 import org.yaml.snakeyaml.constructor.Constructor;
 
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.nio.file.*;
+import java.nio.file.attribute.BasicFileAttributes;
+import java.text.SimpleDateFormat;
+import java.util.*;
+
 
 public class Urbanizer {
 	private static final Logger logger = LoggerFactory
 			.getLogger(Urbanizer.class);
-	private GraphDatabaseService graphDb;
 
-	public Urbanizer(GraphDatabaseService graphDb) {
-		this.graphDb = graphDb;
+	private Urbanizer() {}
+
+    //TODO refactoring
+	private static Node getUnivers(boolean createIfNotExist) {
+		Node univers = DbManager.getDB().getNodeById(0);
+		if (univers != null) {
+            try {
+                if(univers.getProperty("isRoot").equals(true))
+                    return univers;
+            } catch (NotFoundException nfe) {
+                if (univers.getPropertyKeys().iterator().hasNext()) {
+                    throw new RuntimeException("The dabase doesn't seem to be well configured : no root node for all maps");
+                } else {
+                    univers.setProperty("isRoot", true);
+                    return univers;
+                }
+            }
+		} else if(createIfNotExist) {
+            if(univers==null)
+                univers = DbManager.getDB().createNode();
+            univers.setProperty("isRoot", true);
+            return univers;
+        }
+		throw new RuntimeException("the database doesn't seem to be well configured : no root node for all maps");
+	}
+	
+	public static List<org.urbanizit.adminconsole.pojo.Map> listMaps() {
+		List<org.urbanizit.adminconsole.pojo.Map> maps = new ArrayList<>();
+		for(org.neo4j.graphdb.Relationship relationship : getUnivers(false).getRelationships(Direction.OUTGOING, RelationType.CONTAIN)) {
+			org.urbanizit.adminconsole.pojo.Map m = new org.urbanizit.adminconsole.pojo.Map();
+			m.setId(relationship.getEndNode().getId());
+			m.setName(relationship.getEndNode().getProperty("name").toString());
+			m.setType(MapType.valueOf(relationship.getEndNode().getProperty("type").toString()));
+			maps.add(m);
+		}
+		return maps;
 	}
 
 	/**
 	 * fromPath tree is :
-	 * ROOT
-	 * |_domain1
-	 * |  |_application1
-	 * |  |  |_component1
-	 * |  |  |_component2
-	 * |  |_application2
-	 * |  |  |_component3
-	 * |  |  |_component4
-	 * |_domain2
-	 * 
+	 * ROOT_MAP
+	 * |_application1
+	 * |  |_component1
+	 * |  |_component2
+	 * |_application2
+	 * |  |_component3
+	 * |  |_component4
+	 *
 	 * @param fromPath
 	 * @throws IOException
 	 */
-	public void populate(final Path fromPath) throws IOException {
+	public static void populate(final Path fromPath, final String graphName) throws IOException {
 		logger.info("importing {}", fromPath);
 
 		if (!Files.isDirectory(fromPath, LinkOption.NOFOLLOW_LINKS)) {
@@ -60,34 +90,29 @@ public class Urbanizer {
 		final HashMap<Node, List<Relationship>> relationships = new HashMap<>();
 		
 		//prepare indexes
-		IndexManager index = graphDb.index();
-		final Index<Node> coponentNames = index.forNodes( "coponentNames" );
+		IndexManager index = DbManager.getDB().index();
+		final Index<Node> componentNames = index.forNodes( "componentNames" );
 		//add components
 		Files.walkFileTree(fromPath, new SimpleFileVisitor<Path>() {
 			Yaml yaml = new Yaml(new Constructor(Component.class));
 			Node app;
-			Node domain;
+			Node root;
 			@Override
 			public FileVisitResult preVisitDirectory(Path dir,
 					BasicFileAttributes attrs) throws IOException {
 				//ignore root element
 				if(dir.equals(fromPath)) {
-					logger.info("ignoring root path {}", dir);
-
-				} 
-				//create domain node
-				else if(dir.getParent().equals(fromPath)){
-					logger.info("-- import datas from domain {}", dir.getFileName());
-					domain = graphDb.createNode();
-					domain.setProperty("name", dir.getFileName().toString());
-					logger.debug("name : {}", dir.getFileName());
-				} 
+					logger.info("create root node");
+                    root = DbManager.getDB().createNode();
+                    root.setProperty("name", graphName);
+                    root.setProperty("date", new SimpleDateFormat("dd/mm/yyyy").format(new Date()));
+				}
 				//create application node
 				else {
 					logger.info("-- import datas from application {}", dir.getFileName());
-					app = graphDb.createNode();
+					app = DbManager.getDB().createNode();
 					app.setProperty("name", dir.getFileName().toString());
-					app.createRelationshipTo(domain, RelationType.MEMBER_OF);
+					root.createRelationshipTo(app, RelationType.CONTAIN);
 					logger.debug("name : {}", dir.getFileName());
 				}
 				return FileVisitResult.CONTINUE;
@@ -100,7 +125,7 @@ public class Urbanizer {
 				Component component = (Component) yaml.load(new FileInputStream(file.toFile()));
 				logger.debug(component.toString());
 				//create component node
-				Node nodeComponent = graphDb.createNode();
+				Node nodeComponent = DbManager.getDB().createNode();
 				nodeComponent.setProperty("name", component.getName());
 				nodeComponent.setProperty("filename", component.getFilename());
 				nodeComponent.setProperty("type", component.getType());
@@ -110,8 +135,8 @@ public class Urbanizer {
 				if(component.getRelationships() != null)
 					relationships.put(nodeComponent, component.getRelationships());
 				
-				coponentNames.add(nodeComponent, "name", component.getName());
-				coponentNames.add(nodeComponent, "name", component.getFilename());
+				componentNames.add(nodeComponent, "name", component.getName());
+				componentNames.add(nodeComponent, "name", component.getFilename());
 				return FileVisitResult.CONTINUE;
 			}
 		});
@@ -129,4 +154,36 @@ public class Urbanizer {
 			}
 		}
 	}
+
+    public static void initializeDb() {
+        Transaction tx = DbManager.getDB().beginTx();
+        try {
+            if(Configuration.isEmbedded()) {
+                GlobalGraphOperations ggo = GlobalGraphOperations.at(DbManager.getDB());
+
+                for(org.neo4j.graphdb.Relationship r : ggo.getAllRelationships()) {
+                    r.delete();
+                }
+
+                for(Node n : ggo.getAllNodes()) {
+                    n.delete();
+                }
+            }
+
+            getUnivers(true);
+
+            tx.success();
+        } finally {
+            tx.finish();
+        }
+    }
+
+    public static void startDb(){
+        DbManager.start();
+    }
+
+    public static void stopDb(){
+        DbManager.shutdown();
+    }
+
 }
