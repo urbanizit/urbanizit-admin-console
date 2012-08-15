@@ -1,36 +1,36 @@
 package org.urbanizit.adminconsole.pojo;
 
-import org.urbanizit.adminconsole.core.MapType;
+import org.urbanizit.adminconsole.core.types.MapType;
 
 /**
  * @author nicolasger
  */
 public class Map {
-	private long id;
-	private MapType type;
-	private String name;
+    private long id;
+    private MapType mapType;
+    private String name;
 
-	public long getId() {
-		return id;
-	}
+    public long getId() {
+        return id;
+    }
 
-	public void setId(long id) {
-		this.id = id;
-	}
+    public void setId(long id) {
+        this.id = id;
+    }
 
-	public String getName() {
-		return name;
-	}
+    public String getName() {
+        return name;
+    }
 
-	public void setName(String name) {
-		this.name = name;
-	}
+    public void setName(String name) {
+        this.name = name;
+    }
 
-	public MapType getType() {
-		return type;
-	}
+    public MapType getMapType() {
+        return mapType;
+    }
 
-	public void setType(MapType type) {
-		this.type = type;
-	}
+    public void setMapType(MapType MapType) {
+        this.mapType = mapType;
+    }
 }

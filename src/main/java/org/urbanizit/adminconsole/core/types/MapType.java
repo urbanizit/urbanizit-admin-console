@@ -1,4 +1,4 @@
-package org.urbanizit.adminconsole.core;
+package org.urbanizit.adminconsole.core.types;
 
 public enum MapType {
     FUNCTIONNAL,
