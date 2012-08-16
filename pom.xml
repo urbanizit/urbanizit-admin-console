@@ -41,9 +41,7 @@
                 <version>2.9</version>
                 <configuration>
                     <systemPropertyVariables>
-                        <config.path>
-                            ${project.basedir}${file.separator}src${file.separator}test${file.separator}resources${file.separator}
-                        </config.path>
+                        <config.path>${project.build.testResources[0].directory}</config.path>
                     </systemPropertyVariables>
                 </configuration>
             </plugin>
