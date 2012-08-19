@@ -16,12 +16,8 @@ public class Neo4jService implements GraphService {
     private static final Logger logger = LoggerFactory.getLogger(Neo4jService.class);
 
     private GraphDatabaseService graphDb;
-    private ConfigurationService config;
-
     @Inject
-    public Neo4jService(ConfigurationService configuration) {
-        this.config = configuration;
-    }
+    private ConfigurationService config;
 
     @Override
     public GraphDatabaseService getDB() {
