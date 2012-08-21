@@ -15,9 +15,7 @@ import java.nio.file.Paths;
 import java.util.List;
 
 /**
- * User: nicolasger
- * Date: 15/08/12
- * Time: 22:29
+ * @author Nicolas Geraud
  */
 public class CLI {
     private static final Logger logger = LoggerFactory.getLogger(CLI.class);

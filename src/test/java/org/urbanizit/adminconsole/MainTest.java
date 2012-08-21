@@ -12,6 +12,9 @@ import org.neo4j.server.configuration.EmbeddedServerConfigurator;
 import org.neo4j.test.ImpermanentGraphDatabase;
 import org.urbanizit.adminconsole.core.Urbanizer;
 
+/**
+ * @author Nicolas Geraud
+ */
 
 public class MainTest  {
 

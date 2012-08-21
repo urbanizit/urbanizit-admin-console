@@ -3,9 +3,7 @@ package org.urbanizit.adminconsole.core;
 import org.neo4j.graphdb.GraphDatabaseService;
 
 /**
- * User: nicolasger
- * Date: 16/08/12
- * Time: 00:01
+ * @author Nicolas Geraud
  */
 public interface GraphService {
     GraphDatabaseService getDB();

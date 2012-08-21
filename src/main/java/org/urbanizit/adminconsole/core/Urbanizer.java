@@ -24,6 +24,9 @@ import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.*;
 
+/**
+ * @author Nicolas Geraud
+ */
 public class Urbanizer {
     private static final Logger logger = LoggerFactory.getLogger(Urbanizer.class);
     private GraphService graphService;

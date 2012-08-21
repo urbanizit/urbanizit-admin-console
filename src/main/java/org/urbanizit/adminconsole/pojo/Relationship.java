@@ -1,5 +1,8 @@
 package org.urbanizit.adminconsole.pojo;
 
+/**
+ * @author Nicolas Geraud
+ */
 public class Relationship {
 
     private String use;

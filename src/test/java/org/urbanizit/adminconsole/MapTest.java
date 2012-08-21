@@ -19,9 +19,7 @@ import java.io.IOException;
 import java.util.Iterator;
 
 /**
- * User: nicolasger
- * Date: 14/08/12
- * Time: 13:30
+ * @author Nicolas Geraud
  */
 public class MapTest extends LocalServerTest {
 

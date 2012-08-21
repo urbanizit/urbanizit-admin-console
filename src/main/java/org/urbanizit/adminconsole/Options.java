@@ -17,6 +17,8 @@ import java.util.List;
  * -t <ROOT TYPE>      declare types of the <ROOT ELEMENT> to create
  * -c <ROOT NAME>      connect to the map with name <ROOT NAME>
  * -i <SRC DIRECTORY> [use with -c option] import all components from <SRC DIRECTORY>
+ *
+ * @author Nicolas Geraud
  */
 public class Options {
 

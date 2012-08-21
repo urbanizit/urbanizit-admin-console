@@ -3,6 +3,9 @@ package org.urbanizit.adminconsole;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * @author Nicolas Geraud
+ */
 public class Main {
 
     private static final Logger logger = LoggerFactory.getLogger(Main.class);

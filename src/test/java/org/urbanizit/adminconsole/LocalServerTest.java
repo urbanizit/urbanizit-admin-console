@@ -12,9 +12,7 @@ import org.neo4j.test.ImpermanentGraphDatabase;
 import java.io.IOException;
 
 /**
- * User: nicolasger
- * Date: 14/08/12
- * Time: 13:29
+ * @author Nicolas Geraud
  */
 public class LocalServerTest {
     protected static EmbeddedGraphDatabase graphDatabase;

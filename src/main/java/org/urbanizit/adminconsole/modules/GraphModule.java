@@ -10,6 +10,9 @@ import com.google.inject.AbstractModule;
 import org.urbanizit.adminconsole.core.ConfigurationService;
 import org.urbanizit.adminconsole.core.services.PropertiesConfigurationService;
 
+/**
+ * @author Nicolas Geraud
+ */
 public class GraphModule extends AbstractModule {
     protected void configure() {
         bind(ConfigurationService.class).to(PropertiesConfigurationService.class);

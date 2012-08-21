@@ -10,6 +10,9 @@ import com.google.inject.AbstractModule;
 import org.urbanizit.adminconsole.core.GraphService;
 import org.urbanizit.adminconsole.core.services.Neo4jService;
 
+/**
+ * @author Nicolas Geraud
+ */
 public class UrbanizerModule extends AbstractModule {
     @Override
     protected void configure() {

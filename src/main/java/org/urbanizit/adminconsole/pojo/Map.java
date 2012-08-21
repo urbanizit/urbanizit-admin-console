@@ -3,7 +3,7 @@ package org.urbanizit.adminconsole.pojo;
 import org.urbanizit.adminconsole.core.types.MapType;
 
 /**
- * @author nicolasger
+ * @author Nicolas Geraud
  */
 public class Map {
     private long id;

@@ -2,6 +2,9 @@ package org.urbanizit.adminconsole.pojo;
 
 import java.util.List;
 
+/**
+ * @author Nicolas Geraud
+ */
 public class Component {
 
     private String name;
