@@ -37,7 +37,7 @@ public class Options {
     @Option(name = "-t", usage = "types of the map to add")
     private MapType mapType;
 
-    @Option(name = "-c", metaVar = "NAME_OF_THE_MAP", usage = "connect to a map identified by a name")
+    @Option(name = "-c", metaVar = "NAME_OF_THE_MAP", usage = "connect to a map identified by a name and a type")
     private String mapToConnect;
 
     @Option(name = "-i", metaVar = "PATH_TO_DATAS", usage = "import directory to a map (must be connected)")

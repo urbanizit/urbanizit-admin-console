@@ -19,7 +19,7 @@ public class Component {
                 .append("-----------------------------").append("\n")
                 .append("name : ").append(name).append("\n")
                 .append("filename : ").append(filename).append("\n")
-                .append("types : ").append(type).append("\n")
+                .append("type : ").append(type).append("\n")
                 .append("domain : ").append(domain).append("\n");
         if (relationships != null) {
             sb.append("relationships : ").append("\n");

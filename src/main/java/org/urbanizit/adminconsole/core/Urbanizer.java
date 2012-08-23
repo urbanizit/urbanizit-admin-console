@@ -44,7 +44,7 @@ public class Urbanizer {
         Node universe = graphService.getDB().getReferenceNode();
         map = graphService.getDB().createNode();
         map.setProperty("name", name);
-        map.setProperty("types", ElementType.MAP.toString());
+        map.setProperty("type", ElementType.MAP.toString());
         map.setProperty("mapType", type);
         universe.createRelationshipTo(map, RelationType.CONTAIN);
     }
@@ -54,12 +54,12 @@ public class Urbanizer {
         Map<String, Object> params = new HashMap<>();
         params.put("rootNodeId", graphService.getDB().getReferenceNode().getId());
         params.put("mapName", name);
-        params.put("types", ElementType.MAP.toString());
+        params.put("type", ElementType.MAP.toString());
         params.put("mapType", type.toString());
         ExecutionResult result = engine.execute(
                 " START root=node({rootNodeId}) " +
                 " MATCH root-[r:CONTAIN]->map " +
-                " WHERE map.types={types} " +
+                " WHERE map.type={type} " +
                 " AND map.name={mapName} " +
                 " AND map.mapType={mapType} " +
                 " RETURN map"
@@ -146,7 +146,7 @@ public class Urbanizer {
                 Node nodeComponent = graphService.getDB().createNode();
                 nodeComponent.setProperty("name", component.getName());
                 nodeComponent.setProperty("filename", component.getFilename());
-                nodeComponent.setProperty("types", component.getType());
+                nodeComponent.setProperty("type", component.getType());
                 nodeComponent.createRelationshipTo(app, RelationType.MEMBER_OF);
 
                 nameIdNodeMap.put(component.getName(), nodeComponent);
@@ -167,7 +167,7 @@ public class Urbanizer {
                     logger.info("Ignore relation from {} to {}", entry.getKey().getId(), relation.getUse());
                 } else {
                     org.neo4j.graphdb.Relationship r = entry.getKey().createRelationshipTo(to, RelationType.USE);
-                    r.setProperty("types", relation.getType());
+                    r.setProperty("type", relation.getType());
                     r.setProperty("method", relation.getMethod());
                 }
             }

@@ -13,7 +13,7 @@ public class Relationship {
     public String toString() {
         StringBuilder sb = new StringBuilder()
                 .append("  - use : ").append(use).append("\n")
-                .append("    types : ").append(type).append("\n")
+                .append("    type : ").append(type).append("\n")
                 .append("    method : ").append(method).append("\n");
         return sb.toString();
     }

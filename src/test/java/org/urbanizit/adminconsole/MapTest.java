@@ -37,7 +37,7 @@ public class MapTest extends LocalServerTest {
         Node map = urbanizer.getMap("test", MapType.APPLICATION);
         Assert.assertNotNull(map);
         //validate node content
-        Assert.assertEquals(map.getProperty("types"), ElementType.MAP.toString());
+        Assert.assertEquals(map.getProperty("type"), ElementType.MAP.toString());
         Assert.assertEquals(map.getProperty("mapType"), MapType.APPLICATION.toString());
         Assert.assertEquals(map.getProperty("name"), "test");
         //validate relationships
