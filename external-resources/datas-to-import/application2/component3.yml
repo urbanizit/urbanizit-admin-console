@@ -1,0 +1,8 @@
+name: COMPONENT_3
+filename: component3.ear
+type: EAR
+domain: \[zone\]\[district\]\[block\]
+relationships: 
+- use: COMPONENT_4
+  type: WS
+  method: void getCp4WS()

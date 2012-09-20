@@ -1,0 +1,11 @@
+name: COMPONENT_2
+filename: component2.ear
+type: EAR
+domain: \[zone\]\[district\]\[block\]
+relationships: 
+- use: COMPONENT_1
+  type: EJB
+  method: void getCp1EJB()
+- use: COMPONENT_3
+  type: WS
+  method: void getCp3WS()
