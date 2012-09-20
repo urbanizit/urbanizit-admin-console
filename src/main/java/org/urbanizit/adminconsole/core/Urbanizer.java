@@ -96,7 +96,7 @@ public class Urbanizer {
      * |  |_component3
      * |  |_component4
      *
-     * @param fromPath
+     * @param fromPath Path containing the datas to import
      * @throws IOException
      */
     public void populate(final Path fromPath, final Node map) throws IOException {
@@ -130,6 +130,7 @@ public class Urbanizer {
                     logger.info("-- import datas from application {}", dir.getFileName());
                     app = graphService.getDB().createNode();
                     app.setProperty("name", dir.getFileName().toString());
+                    app.setProperty("type", ElementType.APPLICATION);
                     map.createRelationshipTo(app, RelationType.CONTAIN);
                     logger.debug("name : {}", dir.getFileName());
                 }
@@ -164,7 +165,24 @@ public class Urbanizer {
             for (Relationship relation : entry.getValue()) {
                 Node to = nameIdNodeMap.get(relation.getUse());
                 if (to == null) {
-                    logger.info("Ignore relation from {} to {}", entry.getKey().getId(), relation.getUse());
+                    logger.info("Component {} doesn't exist, I create it.", relation.getUse());
+                    //create application
+                    Node app = graphService.getDB().createNode();
+                    app.setProperty("name", relation.getUse());
+                    app.setProperty("type", ElementType.APPLICATION);
+                    map.createRelationshipTo(app, RelationType.CONTAIN);
+                    //create component
+                    Node nodeComponent = graphService.getDB().createNode();
+                    nodeComponent.setProperty("name", relation.getUse());
+                    nodeComponent.setProperty("filename", relation.getUse());
+                    nodeComponent.setProperty("type", ElementType.UNKNOWN);
+                    nodeComponent.createRelationshipTo(app, RelationType.MEMBER_OF);
+                    nameIdNodeMap.put(relation.getUse(), nodeComponent);
+                    componentNames.add(nodeComponent, "name", relation.getUse());
+                    //create relation
+                    org.neo4j.graphdb.Relationship r = entry.getKey().createRelationshipTo(nodeComponent, RelationType.USE);
+                    r.setProperty("type", relation.getType());
+                    r.setProperty("method", relation.getMethod());
                 } else {
                     org.neo4j.graphdb.Relationship r = entry.getKey().createRelationshipTo(to, RelationType.USE);
                     r.setProperty("type", relation.getType());
@@ -174,28 +192,28 @@ public class Urbanizer {
         }
     }
 
-    public void initializeDb() {
-        /*Transaction tx = DbManager.getDB().beginTx();
-        try {
-            if (Configuration.isEmbedded()) {
-                GlobalGraphOperations ggo = GlobalGraphOperations.at(DbManager.getDB());
-
-                for (org.neo4j.graphdb.Relationship r : ggo.getAllRelationships()) {
-                    r.delete();
-                }
-
-                for (Node n : ggo.getAllNodes()) {
-                    n.delete();
-                }
-            }
-
-            getUniverse(true);
-
-            tx.success();
-        } finally {
-            tx.finish();
-        } */
+    public void deleteAll() {
+        Node referenceNode = graphService.getDB().getReferenceNode();
+        deleteNodeAndRelationShips(referenceNode, referenceNode);
     }
 
+    private void deleteNodeAndRelationShips(Node nodeToDelete, Node referenceNode) {
+        Set<Node> nodesToDelete = new HashSet<>();
+        for(org.neo4j.graphdb.Relationship r : nodeToDelete.getRelationships()) {
+            if(r.getEndNode().getId() != referenceNode.getId() && r.getEndNode().getId()!= nodeToDelete.getId()) {
+                nodesToDelete.add(r.getEndNode());
+            }
+            logger.debug("delete relation {}", r.getId());
+            r.delete();
+        }
+        if(nodeToDelete.getId() != referenceNode.getId()) {
+            logger.debug("delete node {}", nodeToDelete.getId());
+            nodeToDelete.delete();
+        }
 
+        for(Node node : nodesToDelete) {
+            deleteNodeAndRelationShips(node, referenceNode);
+        }
+
+    }
 }

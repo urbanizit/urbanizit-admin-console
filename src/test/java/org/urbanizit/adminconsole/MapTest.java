@@ -16,7 +16,9 @@ import org.urbanizit.adminconsole.modules.GraphModule;
 import org.urbanizit.adminconsole.modules.UrbanizerModule;
 
 import java.io.IOException;
-import java.util.Iterator;
+import java.nio.file.Paths;
+import java.nio.file.Path;
+import java.util.*;
 
 /**
  * @author Nicolas Geraud
@@ -47,6 +49,55 @@ public class MapTest extends LocalServerTest {
         Assert.assertFalse(relationships.hasNext());
         Node root = relation.getStartNode();
         Assert.assertEquals(root.getId(), 0L);
-    }
+        urbanizer.deleteAll();
+        Assert.assertEquals(urbanizer.listMaps().size(), 0);
+        urbanizer.addMap("test", MapType.APPLICATION);
+        map = urbanizer.getMap("test", MapType.APPLICATION);
+        Path importPath = Paths.get("external-resources/datas-to-import/").toAbsolutePath();
+        /*
+         import following graph :
+             map
+                 -> application1
+                     -> component1
+                         -> component2
+                         -> component3
+                     -> component2
+                         -> component1
+                         -> component3
+                 -> application2
+                     -> component3
+                     -> COMPONENT_4
+         */
+        try {
+            urbanizer.populate(importPath, map);
+            Iterable<Relationship> outgoingRelationships = map.getRelationships(Direction.OUTGOING);
+            Map<String, Integer> applications = new HashMap<>();
+            applications.put("application1", 0);
+            applications.put("application2", 0);
+            applications.put("COMPONENT_4", 0);
+            //control number of applications
+            List<Relationship> rels = new ArrayList<>();
+            for(Relationship rel : outgoingRelationships) {
+                rels.add(rel);
+                Assert.assertTrue(rel.isType(RelationType.CONTAIN));
+            }
+            //control applications
+            Assert.assertEquals(applications.size(), rels.size());
+            for(Relationship rel : rels) {
+                Node application = rel.getEndNode();
+                Assert.assertEquals(application.getProperty("type"), ElementType.APPLICATION.toString());
+                Assert.assertTrue(applications.containsKey(application.getProperty("name")));
+                Integer count = applications.get(application.getProperty("name"));
+                Assert.assertEquals(count, new Integer(0));
+                applications.put((String) application.getProperty("name"), ++count);
+            }
+            //control component
 
+
+        } catch (IOException e){
+            Assert.fail(e.getMessage());
+            e.printStackTrace();
+        }
+
+    }
 }

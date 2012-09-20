@@ -39,7 +39,7 @@ public class CLI {
             parser.parseArgument(arguments);
 
             if (options.isInitialize()) {
-                urbanizer.initializeDb();
+                urbanizer.deleteAll();
             } else if (options.isHelp()) {
                 parser.printUsage(System.out);
             } else if (options.isListMaps()) {
