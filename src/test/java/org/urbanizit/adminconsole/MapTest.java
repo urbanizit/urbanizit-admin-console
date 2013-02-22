@@ -8,6 +8,8 @@ import org.junit.Test;
 import org.neo4j.graphdb.Direction;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Relationship;
+import org.neo4j.graphdb.index.Index;
+import org.neo4j.graphdb.index.IndexManager;
 import org.urbanizit.adminconsole.core.*;
 import org.urbanizit.adminconsole.core.types.ElementType;
 import org.urbanizit.adminconsole.core.types.MapType;
@@ -88,9 +90,15 @@ public class MapTest extends LocalServerTest {
                 Assert.assertEquals(application.getProperty("type"), ElementType.APPLICATION.toString());
                 Assert.assertTrue(applications.containsKey(application.getProperty("name")));
                 Integer count = applications.get(application.getProperty("name"));
-                Assert.assertEquals(count, new Integer(0));
+                Assert.assertEquals(new Integer(0), count);
                 applications.put((String) application.getProperty("name"), ++count);
             }
+            //control index
+            Assert.assertTrue(graphDatabase.index().existsForNodes("componentNames"));
+            Index<Node> components = graphDatabase.index().forNodes("componentNames");
+            Assert.assertEquals(4, components.query("name","*COMP*").size());
+            Assert.assertEquals(4, components.query("name","*omp*").size());
+
             //control component
 
 

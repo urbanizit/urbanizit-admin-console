@@ -7,6 +7,7 @@ import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.index.Index;
 import org.neo4j.graphdb.index.IndexManager;
 import org.neo4j.helpers.collection.IteratorUtil;
+import org.neo4j.helpers.collection.MapUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.urbanizit.adminconsole.core.types.ElementType;
@@ -112,7 +113,11 @@ public class Urbanizer {
 
         //prepare indexes
         IndexManager index = graphService.getDB().index();
-        final Index<Node> componentNames = index.forNodes("componentNames");
+        final Index<Node> componentNames = index.forNodes("componentNames",
+                MapUtil.stringMap(
+                        IndexManager.PROVIDER, "lucene",
+                        "type", "fulltext",
+                        "to_lower_case","true"));
         //add components
         Files.walkFileTree(fromPath, new SimpleFileVisitor<Path>() {
             Yaml yaml = new Yaml(new Constructor(Component.class));
